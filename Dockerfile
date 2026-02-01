@@ -1,20 +1,24 @@
 FROM node:18-alpine
 
-ENV NODE_ENV=production
-ARG NPM_BUILD="npm install --omit=dev"
-EXPOSE 8080/tcp
-
-LABEL maintainer="Mercury Workshop"
-LABEL summary="Scramjet Demo Image"
-LABEL description="Example application of Scramjet"
+# 1. Install pnpm
+RUN npm install -g pnpm
 
 WORKDIR /app
 
-COPY ["package.json", "package-lock.json", "./"]
-RUN apk add --upgrade --no-cache python3 make g++
-RUN $NPM_BUILD
+# 2. Copy config files
+COPY package.json pnpm-lock.yaml ./
 
+# 3. Install dependencies (with scripts allowed)
+RUN pnpm config set ignore-scripts false
+RUN apk add --no-cache python3 make g++
+RUN pnpm install
+
+# 4. Copy source code
 COPY . .
 
-ENTRYPOINT [ "node" ]
-CMD ["src/index.js"]
+# 5. Build (Only runs if a build script exists)
+RUN npm run build --if-present
+
+# 6. Start
+EXPOSE 8080
+CMD ["pnpm", "start"]
