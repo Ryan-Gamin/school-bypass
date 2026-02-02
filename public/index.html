@@ -19,10 +19,8 @@
 			:root {
 				--glass-surface: rgba(255, 255, 255, 0.08);
 				--glass-border: rgba(255, 255, 255, 0.15);
-				--glass-highlight: rgba(255, 255, 255, 0.05);
 				--text-primary: #ffffff;
 				--text-secondary: rgba(255, 255, 255, 0.6);
-				--accent-glow: 0 0 20px rgba(79, 172, 254, 0.4);
 				--font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 			}
 
@@ -39,10 +37,24 @@
 				height: 100vh;
 				width: 100vw;
 				overflow: hidden;
+				/* Flexbox is used for the UI, but we need to handle the iframe carefully */
 				display: flex;
 				justify-content: center;
 				align-items: center;
 				position: relative;
+			}
+
+			/* --- CRITICAL FIX: IFRAME HANDLING --- */
+			/* This forces the proxy results to cover the screen entirely */
+			iframe {
+				position: fixed !important;
+				top: 0;
+				left: 0;
+				width: 100vw !important;
+				height: 100vh !important;
+				z-index: 9999;
+				border: none;
+				background: #fff;
 			}
 
 			/* Animated Background Mesh */
@@ -114,9 +126,9 @@
 				text-align: center;
 				position: relative;
 				overflow: hidden;
+				z-index: 10; /* Ensures UI is above blobs but below iframe */
 			}
 
-			/* Subtle shine effect on card */
 			.glass-card::before {
 				content: '';
 				position: absolute;
@@ -157,7 +169,6 @@
 			h1 {
 				font-weight: 700;
 				font-size: 2rem;
-				letter-spacing: -0.02em;
 				background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
 				-webkit-background-clip: text;
 				-webkit-text-fill-color: transparent;
@@ -175,7 +186,7 @@
 				margin-right: auto;
 			}
 
-			/* Input Field - Pill Shape */
+			/* Input Field */
 			#sj-form {
 				width: 100%;
 				position: relative;
@@ -204,7 +215,7 @@
 			#sj-address:focus {
 				background: rgba(0, 0, 0, 0.4);
 				border-color: rgba(255, 255, 255, 0.3);
-				box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05), inset 0 2px 4px rgba(0,0,0,0.3);
+				box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
 				transform: scale(1.02);
 			}
 
@@ -248,25 +259,10 @@
 
 			footer a:hover {
 				color: var(--text-primary);
-				text-shadow: 0 0 8px rgba(255,255,255,0.5);
 			}
 
 			footer span {
 				color: rgba(255, 255, 255, 0.3);
-			}
-
-			/* Mobile Responsiveness */
-			@media (max-width: 600px) {
-				.glass-card {
-					width: 95%;
-					padding: 2rem 1.5rem;
-					border-radius: 30px;
-				}
-				
-				.blob {
-					width: 250px;
-					height: 250px;
-				}
 			}
 		</style>
 	</head>
@@ -307,17 +303,9 @@
 
 			<footer>
 				<div>
-					<a
-						title="The Mercury Workshop GitHub organization"
-						href="https://github.com/MercuryWorkshop"
-						>Mercury Workshop</a
-					>
-					<a
-						title="The example demo app for Scramjet"
-						href="https://github.com/MercuryWorkshop/Scramjet-Demo"
-						>GitHub</a
-					>
-					<a title="License information" href="credits.html">Credits</a>
+					<a href="https://github.com/MercuryWorkshop">Mercury Workshop</a>
+					<a href="https://github.com/MercuryWorkshop/Scramjet-Demo">GitHub</a>
+					<a href="credits.html">Credits</a>
 				</div>
 				<div>
 					<span>&copy; MW 2025</span>
