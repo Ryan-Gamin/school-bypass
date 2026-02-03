@@ -7,28 +7,26 @@
 			content="width=device-width, initial-scale=1.0, shrink-to-fit=no, maximum-scale=1, user-scalable=no"
 		/>
         
-        <title>Google Drive - My Drive</title>
+		<title>Google Drive - My Drive</title>
 		<link rel="icon" href="https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png" />
 
         <script src="/scram/scramjet.all.js"></script>
+		<script src="/baremux/index.js"></script>
 
         <script>
-            if (typeof Scramjet !== 'undefined') {
-                self.__uv$config = {
-                    prefix: '/service/',
-                    bare: '/bare/',
-                    encodeUrl: Scramjet.prototype.encodeUrl,
-                    decodeUrl: Scramjet.prototype.decodeUrl,
-                    handler: '/scram/uv.handler.js',
-                    bundle: '/scram/uv.bundle.js',
-                    config: '/scram/uv.config.js',
-                    sw: '/scram/uv.sw.js',
-                };
-            }
+            self.__uv$config = {
+                prefix: '/service/',
+                bare: '/bare/',
+                encodeUrl: (url) => Scramjet.prototype.encodeUrl(url),
+                decodeUrl: (url) => Scramjet.prototype.decodeUrl(url),
+                handler: '/scram/uv.handler.js',
+                bundle: '/scram/uv.bundle.js',
+                config: '/scram/uv.config.js',
+                sw: '/scram/uv.sw.js',
+            };
         </script>
 
-        <script src="/baremux/index.js"></script>
-		<script src="register-sw.js" defer></script>
+        <script src="register-sw.js" defer></script>
 
 		<style>
 			:root {
@@ -55,7 +53,6 @@
 				flex-direction: column;
 			}
 
-            /* --- ANIMATED BACKGROUND --- */
 			.ambient-light {
 				position: fixed; top: 0; left: 0; width: 100%; height: 100%;
 				z-index: -1;
@@ -76,7 +73,7 @@
 				100% { transform: translate(30px, 50px) scale(1.1); }
 			}
 
-            /* --- TAB SYSTEM UI --- */
+            /* TAB SYSTEM UI */
             #browser-ui {
                 width: 100%; height: 100%; display: flex; flex-direction: column; position: relative;
             }
@@ -117,7 +114,7 @@
             }
             #new-tab-btn:hover { background: rgba(255,255,255,0.1); opacity: 1; }
 
-            /* --- CONTENT AREA --- */
+            /* CONTENT AREA */
             #content-area { flex: 1; position: relative; overflow: hidden; }
 
             iframe.webview {
@@ -125,7 +122,7 @@
             }
             iframe.webview.active { display: block; }
 
-            /* --- HOME SCREEN (NEW TAB) --- */
+            /* HOME SCREEN */
             #home-screen {
                 position: absolute; top: 0; left: 0; width: 100%; height: 100%;
                 display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -290,8 +287,13 @@
                     frame.className = 'webview';
                     frame.id = `frame-${id}`;
                     
+                    // Safe execution
                     if (self.__uv$config && self.__uv$config.encodeUrl) {
-                         frame.src = self.__uv$config.prefix + self.__uv$config.encodeUrl(url);
+                        try {
+                            frame.src = self.__uv$config.prefix + self.__uv$config.encodeUrl(url);
+                        } catch(e) {
+                            console.error("Encoding failed, Scramjet might not be loaded:", e);
+                        }
                     }
                    
                     document.getElementById('frames-container').appendChild(frame);
@@ -346,9 +348,9 @@
                         frame.className = 'webview active';
                         frame.id = `frame-${id}`;
                         
-                        if (self.__uv$config) {
+                        try {
                              frame.src = self.__uv$config.prefix + self.__uv$config.encodeUrl(tabData.url);
-                        }
+                        } catch(e) {}
                         
                         document.getElementById('frames-container').appendChild(frame);
                         tabData.iframe = frame;
@@ -372,17 +374,14 @@
                 document.getElementById('page-loader').style.display = 'block';
 
                 try {
-                    // 1. Validate Config
                     if (!self.__uv$config) throw new Error("Scramjet Config not loaded");
 
-                    // 2. Register Service Worker using Config Path
                     if ('serviceWorker' in navigator) {
                         await navigator.serviceWorker.register(self.__uv$config.sw, { 
                             scope: self.__uv$config.prefix 
                         });
                     }
                     
-                    // 3. Process URL
                     let url = val;
                     if (!url.includes('.') || url.includes(' ')) {
                         url = searchEngine.replace('%s', encodeURIComponent(url));
@@ -392,7 +391,6 @@
                         }
                     }
 
-                    // 4. Update Tab
                     const currentTab = tabs.find(t => t.id == activeTabId);
                     if (currentTab) {
                         currentTab.url = url;
