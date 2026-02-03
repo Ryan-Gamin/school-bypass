@@ -11,8 +11,24 @@
 		<link rel="icon" href="https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png" />
 
         <script src="/scram/scramjet.all.js"></script>
-		<script src="/baremux/index.js"></script>
-        <script src="register-sw.js" defer></script>
+
+        <script>
+            if (typeof Scramjet !== 'undefined') {
+                self.__uv$config = {
+                    prefix: '/service/',
+                    bare: '/bare/',
+                    encodeUrl: Scramjet.prototype.encodeUrl,
+                    decodeUrl: Scramjet.prototype.decodeUrl,
+                    handler: '/scram/uv.handler.js',
+                    bundle: '/scram/uv.bundle.js',
+                    config: '/scram/uv.config.js',
+                    sw: '/scram/uv.sw.js',
+                };
+            }
+        </script>
+
+        <script src="/baremux/index.js"></script>
+		<script src="register-sw.js" defer></script>
 
 		<style>
 			:root {
@@ -26,11 +42,7 @@
                 --tab-height: 40px;
 			}
 
-			* {
-				box-sizing: border-box;
-				margin: 0;
-				padding: 0;
-			}
+			* { box-sizing: border-box; margin: 0; padding: 0; }
 
 			body {
 				font-family: var(--font-stack);
@@ -45,21 +57,14 @@
 
             /* --- ANIMATED BACKGROUND --- */
 			.ambient-light {
-				position: fixed;
-				top: 0;
-				left: 0;
-				width: 100%;
-				height: 100%;
+				position: fixed; top: 0; left: 0; width: 100%; height: 100%;
 				z-index: -1;
 				background: radial-gradient(circle at 50% 50%, #111 0%, #000 100%);
 			}
 
 			.blob {
-				position: absolute;
-				filter: blur(90px);
-				opacity: 0.5;
-				animation: float 15s infinite ease-in-out alternate;
-                z-index: -1;
+				position: absolute; filter: blur(90px); opacity: 0.5;
+				animation: float 15s infinite ease-in-out alternate; z-index: -1;
 			}
 
 			.blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #3c00ff; }
@@ -73,134 +78,70 @@
 
             /* --- TAB SYSTEM UI --- */
             #browser-ui {
-                width: 100%;
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                position: relative;
+                width: 100%; height: 100%; display: flex; flex-direction: column; position: relative;
             }
 
             #tab-bar {
                 height: var(--tab-height);
                 background: rgba(0,0,0,0.8);
-                display: flex;
-                align-items: center;
-                padding: 0 10px;
-                gap: 5px;
+                display: flex; align-items: center; padding: 0 10px; gap: 5px;
                 border-bottom: 1px solid var(--glass-border);
-                backdrop-filter: blur(10px);
-                z-index: 100;
+                backdrop-filter: blur(10px); z-index: 100;
             }
 
             .tab {
-                height: 32px;
-                min-width: 120px;
-                max-width: 200px;
+                height: 32px; min-width: 120px; max-width: 200px;
                 background: rgba(255,255,255,0.05);
-                border-radius: 6px;
-                display: flex;
-                align-items: center;
-                padding: 0 10px;
-                font-size: 0.85rem;
-                cursor: pointer;
-                transition: 0.2s;
-                user-select: none;
-                position: relative;
+                border-radius: 6px; display: flex; align-items: center; padding: 0 10px;
+                font-size: 0.85rem; cursor: pointer; transition: 0.2s; user-select: none;
                 border: 1px solid transparent;
             }
 
-            .tab:hover {
-                background: rgba(255,255,255,0.1);
-            }
-
+            .tab:hover { background: rgba(255,255,255,0.1); }
             .tab.active {
-                background: rgba(255,255,255,0.15);
-                border-color: rgba(255,255,255,0.2);
+                background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.2);
                 box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             }
 
-            .tab-title {
-                flex: 1;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                margin-right: 8px;
-            }
-
+            .tab-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 8px; }
             .tab-close {
-                width: 16px;
-                height: 16px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 10px;
-                opacity: 0.6;
+                width: 16px; height: 16px; border-radius: 50%; display: flex;
+                align-items: center; justify-content: center; font-size: 10px; opacity: 0.6;
             }
             .tab-close:hover { background: rgba(255,0,0,0.5); color: white; opacity: 1; }
 
             #new-tab-btn {
-                width: 32px;
-                height: 32px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                border-radius: 50%;
-                font-size: 1.2rem;
-                opacity: 0.7;
-                transition: 0.2s;
+                width: 32px; height: 32px; display: flex; align-items: center;
+                justify-content: center; cursor: pointer; border-radius: 50%;
+                font-size: 1.2rem; opacity: 0.7; transition: 0.2s;
             }
             #new-tab-btn:hover { background: rgba(255,255,255,0.1); opacity: 1; }
 
             /* --- CONTENT AREA --- */
-            #content-area {
-                flex: 1;
-                position: relative;
-                overflow: hidden;
-            }
+            #content-area { flex: 1; position: relative; overflow: hidden; }
 
             iframe.webview {
-                width: 100%;
-                height: 100%;
-                border: none;
-                background: white; /* Standard web bg */
-                display: none;
+                width: 100%; height: 100%; border: none; background: white; display: none;
             }
             iframe.webview.active { display: block; }
 
             /* --- HOME SCREEN (NEW TAB) --- */
             #home-screen {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
+                position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                display: flex; flex-direction: column; justify-content: center; align-items: center;
                 z-index: 50;
-                /* Initially visible */
             }
-
-            #home-screen.hidden {
-                display: none;
-            }
+            #home-screen.hidden { display: none; }
 
 			.glass-card {
-				width: 90%;
-				max-width: 550px;
-				padding: 3.5rem;
+				width: 90%; max-width: 550px; padding: 3.5rem;
 				background: var(--glass-surface);
 				backdrop-filter: blur(40px) saturate(200%);
 				-webkit-backdrop-filter: blur(40px) saturate(200%);
 				border: 1px solid var(--glass-border);
 				border-radius: 24px;
 				box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.7);
-				text-align: center;
-				position: relative;
-				overflow: hidden;
+				text-align: center; position: relative; overflow: hidden;
                 animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
 			}
 
@@ -210,85 +151,45 @@
             }
 
 			.logo {
-                /* New aspect ratio fix */
-				width: 120px;
-				height: auto;
-                max-height: 120px;
-                object-fit: contain;
-				margin-bottom: 1.5rem;
-				filter: drop-shadow(0 0 20px rgba(79, 172, 254, 0.4));
+				width: 120px; height: auto; max-height: 120px; object-fit: contain;
+				margin-bottom: 1.5rem; filter: drop-shadow(0 0 20px rgba(79, 172, 254, 0.4));
 			}
 
 			h1 {
-				font-weight: 800;
-				font-size: 2.5rem;
-				background: var(--accent-grad);
-				-webkit-background-clip: text;
-				-webkit-text-fill-color: transparent;
-				margin-bottom: 0.5rem;
-                letter-spacing: -1px;
+				font-weight: 800; font-size: 2.5rem; background: var(--accent-grad);
+				-webkit-background-clip: text; -webkit-text-fill-color: transparent;
+				margin-bottom: 0.5rem; letter-spacing: -1px;
 			}
 
-			.desc {
-                color: var(--text-secondary);
-                margin-bottom: 2rem;
-                font-size: 1rem;
-            }
+			.desc { color: var(--text-secondary); margin-bottom: 2rem; font-size: 1rem; }
 
-			#sj-form {
-				width: 100%;
-				position: relative;
-			}
+			#sj-form { width: 100%; position: relative; }
 
 			#sj-address {
-				width: 100%;
-				padding: 1.2rem 1.5rem;
-				border-radius: 16px;
-				border: 1px solid rgba(255, 255, 255, 0.2);
-				background: rgba(0, 0, 0, 0.3);
-				color: white;
-				font-size: 1.1rem;
-				font-family: var(--font-stack);
-				outline: none;
-				transition: all 0.3s ease;
-				text-align: center;
+				width: 100%; padding: 1.2rem 1.5rem; border-radius: 16px;
+				border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(0, 0, 0, 0.3);
+				color: white; font-size: 1.1rem; font-family: var(--font-stack);
+				outline: none; transition: all 0.3s ease; text-align: center;
 			}
 
 			#sj-address:focus {
-				background: rgba(0, 0, 0, 0.5);
-				border-color: #4facfe;
-				box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.2);
-				transform: scale(1.02);
+				background: rgba(0, 0, 0, 0.5); border-color: #4facfe;
+				box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.2); transform: scale(1.02);
 			}
 
-			#sj-error {
-				color: #ff6b6b;
-				margin-top: 1rem;
-				font-size: 0.9rem;
-			}
+			#sj-error { color: #ff6b6b; margin-top: 1rem; font-size: 0.9rem; }
 
-            /* --- LOADING INDICATOR --- */
             .loader {
-                height: 2px;
-                width: 100%;
+                height: 2px; width: 100%;
                 background: linear-gradient(90deg, transparent, #4facfe, transparent);
-                position: absolute;
-                top: 0;
-                left: 0;
-                animation: loading 1.5s infinite;
-                display: none;
+                position: absolute; top: 0; left: 0;
+                animation: loading 1.5s infinite; display: none;
             }
             @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
-            /* Footer links */
-            .footer-links {
-                margin-top: 2rem;
-                font-size: 0.8rem;
-                color: rgba(255,255,255,0.4);
-            }
+            .footer-links { margin-top: 2rem; font-size: 0.8rem; color: rgba(255,255,255,0.4); }
             .footer-links a { color: white; text-decoration: none; margin: 0 10px; opacity: 0.6; }
             .footer-links a:hover { opacity: 1; }
-
 		</style>
 	</head>
 
@@ -306,7 +207,6 @@
 
             <div id="content-area">
                 <div class="loader" id="page-loader"></div>
-
                 <div id="frames-container"></div>
 
                 <div id="home-screen">
@@ -331,101 +231,71 @@
         </div>
 
         <script>
-            /**
-             * SCRAMJET / BAREMUX CONFIGURATION
-             * Uses the standard paths provided in the original HTML.
-             */
             const searchEngine = "https://www.google.com/search?q=%s";
-
-            // --- TAB MANAGEMENT SYSTEM ---
             
             let tabs = [];
             let activeTabId = null;
 
-            // Initialize
             window.addEventListener('load', () => {
-                // Load Tabs from Local Storage
                 const savedTabs = localStorage.getItem('scramjet_tabs');
                 const savedActiveId = localStorage.getItem('scramjet_active_id');
 
                 if (savedTabs && JSON.parse(savedTabs).length > 0) {
                     const parsed = JSON.parse(savedTabs);
-                    // Restore tabs
                     parsed.forEach(t => {
-                        createTab(t.url, t.title, t.id, false); // Don't auto switch yet
+                        createTab(t.url, t.title, t.id, false);
                     });
-                    
                     if (savedActiveId && tabs.find(t => t.id == savedActiveId)) {
                         switchTab(savedActiveId);
                     } else {
                         switchTab(parsed[0].id);
                     }
                 } else {
-                    // No saved session, start fresh
                     openNewTab();
                 }
 
-                // Attach Form Listener
                 const form = document.getElementById('sj-form');
                 form.addEventListener('submit', handleHomeSubmit);
             });
 
             function saveSession() {
-                const sessionData = tabs.map(t => ({
-                    id: t.id,
-                    url: t.url,
-                    title: t.title
-                }));
+                const sessionData = tabs.map(t => ({ id: t.id, url: t.url, title: t.title }));
                 localStorage.setItem('scramjet_tabs', JSON.stringify(sessionData));
                 localStorage.setItem('scramjet_active_id', activeTabId);
             }
 
             function openNewTab() {
-                // If we are already on the home screen (active tab has no URL), just focus input
                 const active = tabs.find(t => t.id === activeTabId);
                 if (active && !active.url) {
                     document.getElementById('sj-address').focus();
                     return;
                 }
-                
-                // Create a blank tab
                 createTab(null, "New Tab");
             }
 
             function createTab(url, title = "New Tab", existingId = null, switchTo = true) {
                 const id = existingId || Date.now().toString();
-                
-                const tabObj = {
-                    id: id,
-                    url: url,
-                    title: title,
-                    iframe: null
-                };
+                const tabObj = { id: id, url: url, title: title, iframe: null };
 
-                // Create DOM for Tab
                 const tabEl = document.createElement('div');
                 tabEl.className = 'tab';
                 tabEl.id = `tab-${id}`;
-                tabEl.innerHTML = `
-                    <span class="tab-title">${title}</span>
-                    <span class="tab-close" onclick="closeTab('${id}', event)">✕</span>
-                `;
-                tabEl.onclick = (e) => {
-                    if(!e.target.classList.contains('tab-close')) switchTab(id);
-                };
+                tabEl.innerHTML = `<span class="tab-title">${title}</span><span class="tab-close" onclick="closeTab('${id}', event)">✕</span>`;
+                tabEl.onclick = (e) => { if(!e.target.classList.contains('tab-close')) switchTab(id); };
 
                 document.getElementById('tab-bar').insertBefore(tabEl, document.getElementById('new-tab-btn'));
 
-                // Create Iframe if URL exists
                 if (url) {
                     const frame = document.createElement('iframe');
                     frame.className = 'webview';
                     frame.id = `frame-${id}`;
-                    frame.src = __uv$config.prefix + __uv$config.encodeUrl(url);
+                    
+                    if (self.__uv$config && self.__uv$config.encodeUrl) {
+                         frame.src = self.__uv$config.prefix + self.__uv$config.encodeUrl(url);
+                    }
+                   
                     document.getElementById('frames-container').appendChild(frame);
                     tabObj.iframe = frame;
-                    
-                    // Simple load listener to hide loader
                     frame.onload = () => { document.getElementById('page-loader').style.display = 'none'; };
                 }
 
@@ -436,21 +306,16 @@
 
             function closeTab(id, e) {
                 if (e) e.stopPropagation();
-                
-                // Remove from DOM
                 const tabEl = document.getElementById(`tab-${id}`);
                 const frameEl = document.getElementById(`frame-${id}`);
                 if (tabEl) tabEl.remove();
                 if (frameEl) frameEl.remove();
 
-                // Remove from Array
                 const index = tabs.findIndex(t => t.id == id);
                 tabs.splice(index, 1);
 
-                // Handle Active State
                 if (activeTabId == id) {
                     if (tabs.length > 0) {
-                        // Switch to the previous tab or the next available
                         const newIndex = index > 0 ? index - 1 : 0;
                         switchTab(tabs[newIndex].id);
                     } else {
@@ -465,36 +330,34 @@
                 activeTabId = id;
                 const tabData = tabs.find(t => t.id == id);
 
-                // Update Tab UI
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 const activeTabEl = document.getElementById(`tab-${id}`);
                 if(activeTabEl) activeTabEl.classList.add('active');
 
-                // Update View
                 document.querySelectorAll('.webview').forEach(f => f.classList.remove('active'));
                 const homeScreen = document.getElementById('home-screen');
 
                 if (tabData && tabData.url) {
-                    // Show Iframe
                     homeScreen.classList.add('hidden');
                     if (tabData.iframe) {
                         tabData.iframe.classList.add('active');
                     } else {
-                        // Restore iframe if it was lost (e.g. reload) but URL exists
                         const frame = document.createElement('iframe');
                         frame.className = 'webview active';
                         frame.id = `frame-${id}`;
-                        frame.src = __uv$config.prefix + __uv$config.encodeUrl(tabData.url);
+                        
+                        if (self.__uv$config) {
+                             frame.src = self.__uv$config.prefix + self.__uv$config.encodeUrl(tabData.url);
+                        }
+                        
                         document.getElementById('frames-container').appendChild(frame);
                         tabData.iframe = frame;
                     }
                 } else {
-                    // Show Home
                     homeScreen.classList.remove('hidden');
                     document.getElementById('sj-address').value = "";
                     document.getElementById('sj-address').focus();
                 }
-                
                 saveSession();
             }
 
@@ -505,18 +368,22 @@
                 const val = input.value.trim();
 
                 if (!val) return;
-
                 error.textContent = "Connecting...";
                 document.getElementById('page-loader').style.display = 'block';
 
                 try {
-                    // Register SW if not ready (Basic check)
+                    // 1. Validate Config
+                    if (!self.__uv$config) throw new Error("Scramjet Config not loaded");
+
+                    // 2. Register Service Worker using Config Path
                     if ('serviceWorker' in navigator) {
-                        await navigator.serviceWorker.register('sw.js', { scope: __uv$config.prefix });
+                        await navigator.serviceWorker.register(self.__uv$config.sw, { 
+                            scope: self.__uv$config.prefix 
+                        });
                     }
                     
+                    // 3. Process URL
                     let url = val;
-                    // Basic search vs URL logic
                     if (!url.includes('.') || url.includes(' ')) {
                         url = searchEngine.replace('%s', encodeURIComponent(url));
                     } else {
@@ -525,17 +392,15 @@
                         }
                     }
 
-                    // Update Current Tab
+                    // 4. Update Tab
                     const currentTab = tabs.find(t => t.id == activeTabId);
                     if (currentTab) {
                         currentTab.url = url;
-                        currentTab.title = val; // Temp title
+                        currentTab.title = val;
                         
-                        // Update UI text
                         const tabEl = document.getElementById(`tab-${currentTab.id}`);
                         if(tabEl) tabEl.querySelector('.tab-title').textContent = val;
 
-                        // Create/Update Iframe
                         let frame = document.getElementById(`frame-${currentTab.id}`);
                         if (!frame) {
                             frame = document.createElement('iframe');
@@ -545,16 +410,12 @@
                             currentTab.iframe = frame;
                         }
                         
-                        // Navigate
-                        frame.src = __uv$config.prefix + __uv$config.encodeUrl(url);
-                        
-                        // Switch view
+                        frame.src = self.__uv$config.prefix + self.__uv$config.encodeUrl(url);
                         switchTab(currentTab.id);
                     }
-                    
                     error.textContent = "";
-
                 } catch (err) {
+                    console.error(err);
                     error.textContent = "Error: " + err.message;
                     document.getElementById('page-loader').style.display = 'none';
                 }
