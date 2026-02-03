@@ -37,16 +37,17 @@
 				height: 100vh;
 				width: 100vw;
 				overflow: hidden;
-				/* Flexbox is used for the UI, but we need to handle the iframe carefully */
 				display: flex;
 				justify-content: center;
 				align-items: center;
 				position: relative;
 			}
 
-			/* --- CRITICAL FIX: IFRAME HANDLING --- */
-			/* This forces the proxy results to cover the screen entirely */
-			iframe {
+			/* --- FIXED IFRAME HANDLING --- */
+			/* 1. We hide it by default so it doesn't block the UI on load */
+			/* 2. We give it a black background so if it hangs, you don't get flash-banged */
+			#sj-iframe {
+				display: none; 
 				position: fixed !important;
 				top: 0;
 				left: 0;
@@ -54,10 +55,15 @@
 				height: 100vh !important;
 				z-index: 9999;
 				border: none;
-				background: #fff;
+				background: #000; 
 			}
 
-			/* Animated Background Mesh */
+			/* Class to show the iframe when search starts */
+			#sj-iframe.active {
+				display: block;
+			}
+
+			/* Ambient Light Effects */
 			.ambient-light {
 				position: absolute;
 				top: 0;
@@ -112,7 +118,7 @@
 				100% { transform: translate(20px, 40px) rotate(10deg); }
 			}
 
-			/* Main Glass Card */
+			/* UI Card */
 			.glass-card {
 				width: 90%;
 				max-width: 600px;
@@ -126,7 +132,7 @@
 				text-align: center;
 				position: relative;
 				overflow: hidden;
-				z-index: 10; /* Ensures UI is above blobs but below iframe */
+				z-index: 10;
 			}
 
 			.glass-card::before {
@@ -146,7 +152,6 @@
 				pointer-events: none;
 			}
 
-			/* Logo Area */
 			.logo-wrapper {
 				display: flex;
 				flex-direction: column;
@@ -186,7 +191,6 @@
 				margin-right: auto;
 			}
 
-			/* Input Field */
 			#sj-form {
 				width: 100%;
 				position: relative;
@@ -219,7 +223,6 @@
 				transform: scale(1.02);
 			}
 
-			/* Error Handling */
 			#sj-error {
 				color: #ff6b6b;
 				margin-top: 1rem;
@@ -234,7 +237,6 @@
 				opacity: 0.8;
 			}
 
-			/* Footer */
 			footer {
 				margin-top: 3rem;
 				padding-top: 1.5rem;
@@ -312,5 +314,8 @@
 				</div>
 			</footer>
 		</main>
+
+		<iframe id="sj-iframe"></iframe>
+
 	</body>
 </html>
